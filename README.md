@@ -18,19 +18,20 @@ The result is a lightweight backend that focuses on authentication, authorizatio
 
 ## Key Features
 
-* 🔐 JWT-based authentication
-* 👥 Role-based access control (RBAC)
-* 📁 Hierarchical folder management
-* 📤 Secure presigned file uploads
-* 📥 Presigned downloads with temporary access
-* 🧩 Multipart uploads for large files
-* 🔗 File sharing with controlled access
-* 🗑️ File deletion and management
-* 🔎 File metadata and search
-* 🔒 Private object storage
-* ✅ File integrity verification using checksums
-* 📊 Storage quota tracking
-* ⚡ Database indexing for efficient metadata queries
+* JWT-based authentication
+* Role-based access control (RBAC)
+* Hierarchical folder management
+* Secure presigned file uploads
+* Presigned downloads with temporary access
+* Multipart uploads for large files
+* File sharing with controlled access
+* File deletion and management
+* File metadata and search
+* Private object storage
+* File integrity verification using checksums
+* Storage quota tracking
+* Database indexing for efficient metadata queries
+
 
 ---
 
