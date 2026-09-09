@@ -35,42 +35,7 @@ The result is a lightweight backend that focuses on authentication, authorizatio
 ---
 
 ## Architecture
-
-```text
-                         ┌──────────────────┐
-                         │      Client      │
-                         │   Web Browser    │
-                         └────────┬─────────┘
-                                  │
-                            HTTPS / REST
-                                  │
-                         ┌────────▼─────────┐
-                         │   Node.js API    │
-                         │     Express      │
-                         └────────┬─────────┘
-                                  │
-                  ┌───────────────┼────────────────┐
-                  │               │                │
-                  ▼               ▼                ▼
-           Authentication    File Service    Folder Service
-                  │               │                │
-                  └───────────────┼────────────────┘
-                                  │
-                         ┌────────▼─────────┐
-                         │   PostgreSQL     │
-                         │ File Metadata    │
-                         └──────────────────┘
-
-                                  │
-                           Presigned URLs
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │     AWS S3       │
-                         │  Private Bucket  │
-                         │   File Objects   │
-                         └──────────────────┘
-```
+<img width="556" height="1128" alt="image (2)" src="https://github.com/user-attachments/assets/7c635888-08d1-4a23-b3a6-7a99a1d44ee0" />
 
 ### Design Principle
 
