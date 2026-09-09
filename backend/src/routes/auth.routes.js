@@ -3,7 +3,9 @@ import { login, me, register } from "../controllers/auth.controller.js";
 import { auth } from "../middleware/auth.middleware.js";
 
 const router = Router();
+
 router.post("/register", register);
 router.post("/login", login);
 router.get("/me", auth, me);
-export default router;console.log("Hello World");
+
+export default router;

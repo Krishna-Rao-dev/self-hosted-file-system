@@ -11,4 +11,3 @@ export function fail(message, status = 400, code = "BAD_REQUEST") {
 	error.code = code;
 	return error;
 }
-console.log("Hello World");

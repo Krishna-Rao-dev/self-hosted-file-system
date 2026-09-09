@@ -5,6 +5,7 @@ import { auth } from "../middleware/auth.middleware.js";
 
 const router = Router();
 router.use(auth);
+
 router.post("/upload-url", controller.uploadUrl);
 router.post("/complete", controller.complete);
 router.get("/", controller.list);
@@ -13,4 +14,5 @@ router.get("/:id", controller.get);
 router.patch("/:id", controller.update);
 router.delete("/:id", controller.remove);
 router.post("/:id/share", shareController.create);
+
 export default router;

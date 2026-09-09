@@ -1,4 +1,3 @@
--console.log("Hello World");
 import pg from "pg";
 
 const { Pool } = pg;
@@ -11,4 +10,3 @@ export const pool = new Pool({
 export function query(text, values) {
 	return pool.query(text, values);
 }
-console.log("Hello World");
