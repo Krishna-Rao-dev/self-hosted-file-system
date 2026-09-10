@@ -85,6 +85,7 @@ export async function list(userId, folderId, search, page = 1, all = false) {
 			 ORDER BY created_at DESC`,
 			values
 		);
+		console.log(result.folderId);
 		return result.rows;
 	}
 
@@ -102,6 +103,7 @@ export async function list(userId, folderId, search, page = 1, all = false) {
 }
 
 export async function get(userId, id) {
+	console.log(id);
 	const result = await query(
 		"SELECT * FROM files WHERE id = $1 AND user_id = $2 AND completed = TRUE",
 		[id, userId]

@@ -8,6 +8,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [files, setFiles] = useState([]);
   const [allFiles, setAllFiles] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [folders, setFolders] = useState([]);
   const [allFolders, setAllFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState(null);
@@ -106,7 +107,15 @@ function App() {
     const search = searchTerm.trim();
     setActiveSearch(search);
     try {
-      await loadWorkspace(currentFolder, search);
+      if (!search) {
+        setSearchResults([]);
+        await loadWorkspace(currentFolder, "");
+        return;
+      }
+
+      const params = new URLSearchParams({ all: "true", search });
+      const result = await api.authRequest(`/files?${params}`, token);
+      setSearchResults(result.files);
     } catch (error) {
       setMessage(error.message);
     }
@@ -115,6 +124,7 @@ function App() {
   async function clearSearch() {
     setSearchTerm("");
     setActiveSearch("");
+    setSearchResults([]);
     try {
       await loadWorkspace(currentFolder, "");
     } catch (error) {
@@ -286,6 +296,22 @@ function App() {
     .slice(0, 10);
   const shownFiles = section === "recent" ? recentFiles : currentFolder ? files : allFiles;
 
+  function renderFileRows(fileList) {
+    return fileList.map((file) => (
+      <article key={file.id}>
+        <div>
+          <strong>{filePath(file)}</strong>
+          <span>{formatSize(file.size)} · Uploaded {formatDate(file.created_at)}</span>
+        </div>
+        <div className="file-actions">
+          <button onClick={() => downloadFile(file.id)}>Download</button>
+          <button onClick={() => openProperties(file)}>Properties</button>
+          <button className="delete" onClick={() => deleteFile(file)}>Delete</button>
+        </div>
+      </article>
+    ));
+  }
+
   return (
     <main className="workspace">
       <header>
@@ -314,6 +340,20 @@ function App() {
 
       <p className="error">{message}</p>
 
+      {activeSearch && (
+        <section className="search-results">
+          <div className="section-heading">
+            <h2>Search results</h2>
+            <span className="muted">{searchResults.length} matching files across all folders</span>
+          </div>
+          <section className="file-list">
+            {renderFileRows(searchResults)}
+            {!searchResults.length && <p className="empty">No files match “{activeSearch}”.</p>}
+          </section>
+        </section>
+    )}
+        <br/>
+        <br/>
       <nav className="sections" aria-label="File sections">
         <button className={section === "directories" ? "active" : ""} onClick={() => setSection("directories")}>All directories <span>{allFolders.length}</span></button>
         <button className={section === "files" ? "active" : ""} onClick={() => setSection("files")}>All files <span>{allFiles.length}</span></button>
@@ -342,12 +382,7 @@ function App() {
           <div className="section-heading"><h2>{section === "recent" ? "Recent uploads" : "All files"}</h2><span className="muted">{section === "recent" ? "Your latest 10 uploads" : "Files from every directory and root space"}</span></div>
           {section !== "recent" && section !== "files" && <section className="folder-list">{folders.map((folder) => <div className="folder" key={folder.id}><button className="folder-open" onClick={() => openFolder(folder)}><strong>{folder.name}</strong><small>Open folder</small></button><button className="delete" type="button" onClick={() => deleteFolder(folder)}>Delete</button></div>)}</section>}
           <section className="file-list">
-            {shownFiles.map((file) => (
-              <article key={file.id}>
-                <div><strong>{filePath(file)}</strong><span>{formatSize(file.size)} · Uploaded {formatDate(file.created_at)}</span></div>
-                <div className="file-actions"><button onClick={() => downloadFile(file.id)}>Download</button><button onClick={() => openProperties(file)}>Properties</button><button className="delete" onClick={() => deleteFile(file)}>Delete</button></div>
-              </article>
-            ))}
+            {renderFileRows(shownFiles)}
             {!shownFiles.length && <p className="empty">No files yet. Upload your first file.</p>}
           </section>
         </>

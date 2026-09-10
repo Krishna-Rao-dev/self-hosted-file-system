@@ -37,6 +37,7 @@ export async function get(request, response, next) {
 	try {
 		const file = await service.get(request.user.id, request.params.id);
 		response.json({ file });
+	
 	} catch (error) {
 		next(error);
 	}
