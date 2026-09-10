@@ -24,7 +24,6 @@ The result is a lightweight backend that focuses on authentication, authorizatio
 * Secure presigned file uploads
 * Presigned downloads with temporary access
 * Multipart uploads for large files
-* File sharing with controlled access
 * File deletion and management
 * File metadata and search
 * Private object storage
@@ -38,7 +37,34 @@ The result is a lightweight backend that focuses on authentication, authorizatio
 ## Architecture
 <img width="556" height="1128" alt="image (2)" src="https://github.com/user-attachments/assets/7c635888-08d1-4a23-b3a6-7a99a1d44ee0" />
 
-### Design Principle
+
+## Prototype Images 
+
+<img width="1917" height="911" alt="image" src="https://github.com/user-attachments/assets/68cad9c7-87ff-48d7-9c6e-c52f94fcc0ec" />
+
+<br/>
+<br/>
+<img width="1897" height="907" alt="image" src="https://github.com/user-attachments/assets/fc1498b2-8701-430b-bb2d-4abbe6ccec46" />
+
+<br/>
+<br/>
+<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/7282401b-43a6-4498-88cb-a118557ef522" />
+<br/>
+<br/>
+<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/d2391884-62b8-4cc6-a44c-5001e99228f3" />
+<br/>
+<br/>
+<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/cdf0499d-38e7-4aad-9fda-2c8082be53e2" />
+<br/>
+<br/>
+<img width="1497" height="897" alt="image" src="https://github.com/user-attachments/assets/79baf2d1-1b86-4273-95a2-6283261e6e7e" />
+<br/>
+<br/>
+<img width="1566" height="912" alt="image" src="https://github.com/user-attachments/assets/7363b095-3250-43e8-9be7-9ed9588ce8e0" />
+<br/>
+
+
+## Design Principle
 
 The application does **not** send large files through the Node.js server.
 
@@ -192,31 +218,6 @@ Checksums are maintained for uploaded files and can be compared against download
 
 ---
 
-## Performance Benchmarks
-
-The system is designed and benchmarked around realistic concurrent file-management workloads.
-
-### API Performance
-
-| Metric            |               Benchmark |
-| ----------------- | ----------------------: |
-| Throughput        | **~3,000 requests/sec** |
-| p95 API latency   |              **~35 ms** |
-| Concurrent users  |                **250+** |
-| Operations tested |               **100K+** |
-| Error rate        |                 **<1%** |
-
-### File Transfer Performance
-
-| Metric                   |     Benchmark |
-| ------------------------ | ------------: |
-| File-transfer throughput | **~100 MB/s** |
-| Concurrent users         |      **250+** |
-| Operations tested        |     **100K+** |
-
-Direct browser-to-S3 transfers prevent large file payloads from passing through the Node.js application server, reducing backend bandwidth consumption and allowing the API layer to concentrate on metadata and authorization workloads.
-
----
 
 ## API Overview
 
@@ -259,7 +260,7 @@ DELETE /api/share/:token
 
 ---
 
-## Project Structure
+## Project 
 
 ```text
 file-management-system/
@@ -474,11 +475,3 @@ Testing       → Load testing / benchmarking
 * Horizontal API scaling
 
 ---
-
-## Core Engineering Idea
-
-The central design principle of the system is simple:
-
-> **PostgreSQL manages what the file is, the Node.js backend decides who can access it, and S3 stores the actual bytes.**
-
-This separation allows the application to provide secure file management without turning the application server into a bottleneck for large file transfers.
