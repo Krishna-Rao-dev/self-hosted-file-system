@@ -2,10 +2,13 @@ import * as service from "../services/folder.service.js";
 
 export async function list(request, response, next) {
 	try {
-		const folders = await service.list(
-			request.user.id,
-			request.query.parentFolderId || null
-		);
+		const folders = request.query.all === "true"
+			? await service.listAll(request.user.id, request.query.search)
+			: await service.list(
+				request.user.id,
+				request.query.parentFolderId || null,
+				request.query.search
+			);
 		response.json({ folders });
 	} catch (error) {
 		next(error);

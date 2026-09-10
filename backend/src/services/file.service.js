@@ -63,7 +63,7 @@ export async function complete(userId, id) {
 	return { ...file, completed: true };
 }
 
-export async function list(userId, folderId, search, page = 1) {
+export async function list(userId, folderId, search, page = 1, all = false) {
 	const values = [userId];
 	let where = "user_id = $1 AND completed = TRUE";
 
@@ -75,6 +75,17 @@ export async function list(userId, folderId, search, page = 1) {
 	if (search) {
 		values.push(`%${search}%`);
 		where += ` AND original_name ILIKE $${values.length}`;
+	}
+
+	if (all) {
+		const result = await query(
+			`SELECT id, folder_id, original_name, mime_type, size, created_at, updated_at
+			 FROM files
+			 WHERE ${where}
+			 ORDER BY created_at DESC`,
+			values
+		);
+		return result.rows;
 	}
 
 	const limit = 50;

@@ -16,14 +16,50 @@ form button, .upload { background: var(--ink); color: white; padding: 13px 18px;
 header, .toolbar, article { display: flex; align-items: center; justify-content: space-between; }
 header { border-bottom: 1px solid var(--line); padding-bottom: 28px; }
 header h1 { font-size: 54px; }
+.account { color: var(--muted); margin: -8px 0 0; font: 13px Arial, sans-serif; }
 .quiet { background: transparent; color: var(--muted); }
-.toolbar { padding: 28px 0; }
+.toolbar { padding: 28px 0; gap: 12px; flex-wrap: wrap; }
 .upload { display: inline-block; cursor: pointer; }
 .upload input { display: none; }
+.new-folder { display: flex; gap: 8px; margin: 0 auto 0 0; }
+.new-folder input { min-width: 180px; padding: 10px 12px; }
+.new-folder button { background: #a26722; color: white; padding: 10px 12px; border-radius: 3px; }
+.search { display: flex; gap: 8px; margin: 0 0 28px; }
+.search input { flex: 1; min-width: 0; }
+.search button { background: var(--ink); color: white; padding: 10px 14px; border-radius: 3px; }
+.search .clear-search { background: transparent; color: var(--muted); }
+.sections { display: flex; gap: 8px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.sections button { background: transparent; color: var(--muted); padding: 12px 4px; border-bottom: 2px solid transparent; }
+.sections button.active { color: var(--ink); border-bottom-color: #a26722; }
+.sections span { color: #a26722; font: 12px Arial, sans-serif; }
+.section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.section-heading h2 { margin: 0; font-size: 24px; }
+.breadcrumbs { display: flex; align-items: center; gap: 9px; padding: 0 0 16px; }
+.breadcrumbs button { background: transparent; color: #a26722; padding: 0; }
+.breadcrumbs button.active { color: var(--ink); font-weight: 700; }
+.folder-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; padding-bottom: 24px; }
+.folder { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; text-align: left; background: #fff; border: 1px solid var(--line); padding: 14px; border-radius: 3px; }
+.folder-open { display: grid; gap: 4px; text-align: left; background: transparent; padding: 0; }
+.folder-details, .folder-actions, .file-actions { display: grid; gap: 4px; }
+.folder-actions { justify-items: end; }
+.folder span { color: var(--muted); font: 13px Arial, sans-serif; }
+.folder small { color: var(--muted); font: 13px Arial, sans-serif; }
+.delete { background: transparent; color: #a33e35; padding: 0; }
 .file-list { border-top: 1px solid var(--line); }
 article { padding: 18px 0; border-bottom: 1px solid var(--line); gap: 16px; }
 article div { display: grid; gap: 3px; }
 article span { color: var(--muted); font: 13px Arial, sans-serif; }
 article button { background: transparent; color: #a26722; }
 .empty { color: var(--muted); padding: 24px 0; }
+.modal-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(23 35 31 / 45%); z-index: 2; }
+.modal { width: min(520px, 100%); background: #f7faf5; padding: 28px; border-radius: 4px; box-shadow: 0 18px 60px rgb(23 35 31 / 25%); }
+.modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+.modal h2 { margin: 0; overflow-wrap: anywhere; }
+.metadata { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 0; }
+.metadata div { display: grid; gap: 3px; }
+.metadata dt { color: var(--muted); font: 12px Arial, sans-serif; text-transform: uppercase; }
+.metadata dd { margin: 0; overflow-wrap: anywhere; }
+.rename-form { display: grid; gap: 8px; margin: 0; }
+.rename-form label { color: var(--muted); font: 13px Arial, sans-serif; }
+.rename-form button { background: var(--ink); color: white; padding: 11px 14px; border-radius: 3px; }
 @media (max-width: 600px) { .login, .workspace { width: min(100% - 28px, 960px); } .workspace { padding-top: 36px; } }

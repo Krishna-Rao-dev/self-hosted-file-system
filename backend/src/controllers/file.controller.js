@@ -22,9 +22,10 @@ export async function list(request, response, next) {
 	try {
 		const files = await service.list(
 			request.user.id,
-			request.query.folderId,
+			request.query.all === "true" ? null : request.query.folderId,
 			request.query.search,
-			Number(request.query.page || 1)
+			Number(request.query.page || 1),
+			request.query.all === "true"
 		);
 		response.json({ files });
 	} catch (error) {
