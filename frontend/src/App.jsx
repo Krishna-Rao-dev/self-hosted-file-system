@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import "./App.css";
 
+async function sha256(buffer) {
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function expiryFromHours(hours) {
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const shareToken = window.location.pathname.match(/^\/share\/([^/]+)$/)?.[1];
@@ -166,7 +175,7 @@ function App() {
       if (!uploadResponse.ok) throw new Error(`S3 upload failed: ${uploadResponse.status}`);
       await api.authRequest("/files/complete", token, {
         method: "POST",
-        body: JSON.stringify({ fileId: upload.fileId }),
+        body: JSON.stringify({ fileId: upload.fileId, checksum: await sha256(await file.arrayBuffer()) }),
       });
       await refreshAfterChange();
     } catch (error) {
@@ -214,8 +223,27 @@ function App() {
   }
 
   async function downloadFile(fileId) {
-    const result = await api.authRequest(`/files/${fileId}/download`, token);
-    window.open(result.downloadUrl, "_blank");
+    try {
+      const [result, file] = await Promise.all([
+        api.authRequest(`/files/${fileId}/download`, token),
+        Promise.resolve(allFiles.find((item) => item.id === fileId)),
+      ]);
+      const response = await fetch(result.downloadUrl);
+      if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+      const bytes = await response.arrayBuffer();
+      const checksum = await sha256(bytes);
+      if (file?.checksum && checksum !== file.checksum) {
+        throw new Error("Integrity check failed: the downloaded file does not match its stored checksum.");
+      }
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([bytes], { type: file?.mime_type || "application/octet-stream" }));
+      link.download = file?.original_name || "download";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      setMessage("Download verified successfully.");
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
 
   async function createShareLink(file) {
@@ -227,7 +255,7 @@ function App() {
       return;
     }
     try {
-      const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+      const expiresAt = expiryFromHours(hours);
       const result = await api.authRequest(`/files/${file.id}/share`, token, {
         method: "POST",
         body: JSON.stringify({ expiresAt }),
@@ -329,8 +357,23 @@ function App() {
         <p className="eyebrow">SHARED FILE · READ ONLY</p>
         <h1>{sharedFile.file.originalName}</h1>
         <p className="muted">This link grants download access only. It does not grant access to the owner's file space.</p>
-        <a className="button-link" href={sharedFile.downloadUrl}>Download file</a>
-        <p className="muted">The download address is temporary and may expire separately from this share link.</p>
+        <button className="button-link" onClick={async () => {
+          try {
+            const response = await fetch(sharedFile.downloadUrl);
+            if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+            const bytes = await response.arrayBuffer();
+            const checksum = await sha256(bytes);
+            if (sharedFile.file.checksum && checksum !== sharedFile.file.checksum) throw new Error("Integrity check failed: the downloaded file does not match its stored checksum.");
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([bytes], { type: sharedFile.file.mimeType }));
+            link.download = sharedFile.file.originalName;
+            link.click();
+            URL.revokeObjectURL(link.href);
+          } catch (error) {
+            setShareError(error.message);
+          }
+        }}>Download verified file</button>
+        <p className="muted">The file is checked against its stored SHA-256 checksum before download.</p>
       </main>
     );
   }

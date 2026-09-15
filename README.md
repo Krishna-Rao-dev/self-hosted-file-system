@@ -16,7 +16,7 @@ It is built with React, Express, PostgreSQL, and Amazon S3. PostgreSQL stores us
 
 * **Authentication & Authorization:** Secure email/password login using JWT tokens (`localStorage` persistence), parameterized PostgreSQL queries, and strict resource ownership checks.
 * **File & Folder Management:** Full file system capabilities including nested folder creation, directory browsing, filename/foldername search, renaming, and deletion.
-* **S3 File Transfers & Storage Tracking:** Direct file uploads via S3 `PutObject`, secure downloads using temporary S3 `GetObject` presigned URLs, and real-time per-user storage quota enforcement (`storage_used` vs. `storage_limit`).
+* **S3 File Transfers & Storage Tracking:** Direct file uploads via S3 `PutObject`, secure downloads using temporary S3 `GetObject` presigned URLs, SHA-256 integrity verification, and real-time per-user storage quota enforcement (`storage_used` vs. `storage_limit`).
 * **Expiring Share Links:** API endpoints to generate, manage, and revoke temporary file-sharing links with optional expiration limits.
 * **React Frontend:** Modern web dashboard supporting core user workflows including authentication, folder navigation, file uploads/downloads, search, and storage management.
 ---
@@ -80,12 +80,14 @@ The S3 bucket remains private. Files are accessed through short-lived presigned 
 
 ### Integrity Verification
 
-Checksums are maintained for uploaded files and can be compared against downloaded files to verify data integrity.
+The browser calculates a SHA-256 checksum for each selected file and sends it when the upload is completed. The API stores the checksum with the file metadata. Downloads, including downloads through a public share link, are fetched through the temporary S3 URL and checked against that stored checksum before the browser saves the file. A mismatch stops the download and reports an integrity failure.
 
 ---
 
 
 ## API Overview
+
+All endpoints require `Authorization: Bearer <token>` unless marked public. Request and response bodies are JSON.
 
 ### Authentication
 
@@ -110,6 +112,7 @@ DELETE /api/files/:id
 ### Folders
 
 ```http
+GET    /api/folders
 POST   /api/folders
 GET    /api/folders/:id
 PATCH  /api/folders/:id
@@ -120,8 +123,8 @@ DELETE /api/folders/:id
 
 ```http
 POST   /api/files/:id/share
-GET    /api/share/:token
-DELETE /api/share/:token
+GET    /api/share/:token       # public read-only access
+DELETE /api/share/:token       # authenticated file owner
 ```
 
 ---

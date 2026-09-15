@@ -30,7 +30,8 @@ export async function get(token) {
 			id: file.id,
 			originalName: file.original_name,
 			size: file.size,
-			mimeType: file.mime_type
+			mimeType: file.mime_type,
+			checksum: file.checksum
 		},
 		downloadUrl: await generateDownloadUrl(file.s3_key, file.original_name)
 	};

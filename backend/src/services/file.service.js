@@ -46,6 +46,10 @@ export async function createUpload(userId, input) {
 }
 
 export async function complete(userId, id) {
+	return completeWithChecksum(userId, id, null);
+}
+
+export async function completeWithChecksum(userId, id, checksum) {
 	const result = await query(
 		"SELECT * FROM files WHERE id = $1 AND user_id = $2",
 		[id, userId]
@@ -58,7 +62,10 @@ export async function complete(userId, id) {
 	if (!(await objectExists(file.s3_key))) {
 		throw fail("Uploaded object was not found", 400, "UPLOAD_NOT_FOUND");
 	}
-	await query("UPDATE files SET completed = TRUE, updated_at = NOW() WHERE id = $1", [id]);
+	await query(
+		"UPDATE files SET completed = TRUE, checksum = $1, updated_at = NOW() WHERE id = $2",
+		[checksum || null, id]
+	);
 	await query("UPDATE users SET storage_used = storage_used + $1 WHERE id = $2", [file.size, userId]);
 	return { ...file, completed: true };
 }
@@ -80,6 +87,7 @@ export async function list(userId, folderId, search, page = 1, all = false) {
 	if (all) {
 		const result = await query(
 			`SELECT id, folder_id, original_name, mime_type, size, created_at, updated_at
+				, checksum
 			 FROM files
 			 WHERE ${where}
 			 ORDER BY created_at DESC`,
@@ -93,6 +101,7 @@ export async function list(userId, folderId, search, page = 1, all = false) {
 	values.push(limit, (page - 1) * limit);
 	const result = await query(
 		`SELECT id, folder_id, original_name, mime_type, size, created_at, updated_at
+			, checksum
 		 FROM files
 		 WHERE ${where}
 		 ORDER BY created_at DESC

@@ -11,7 +11,11 @@ export async function uploadUrl(request, response, next) {
 
 export async function complete(request, response, next) {
 	try {
-		const file = await service.complete(request.user.id, request.body.fileId);
+		const file = await service.completeWithChecksum(
+			request.user.id,
+			request.body.fileId,
+			request.body.checksum
+		);
 		response.json({ file });
 	} catch (error) {
 		next(error);
