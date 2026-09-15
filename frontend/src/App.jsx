@@ -4,6 +4,10 @@ import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const shareToken = window.location.pathname.match(/^\/share\/([^/]+)$/)?.[1];
+  const [sharedFile, setSharedFile] = useState(null);
+  const [shareLoading, setShareLoading] = useState(Boolean(shareToken));
+  const [shareError, setShareError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [files, setFiles] = useState([]);
@@ -20,6 +24,14 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [renameName, setRenameName] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!shareToken) return;
+    api.request(`/share/${shareToken}`)
+      .then(setSharedFile)
+      .catch((error) => setShareError(error.message))
+      .finally(() => setShareLoading(false));
+  }, [shareToken]);
 
   async function login(event) {
     event.preventDefault();
@@ -206,6 +218,40 @@ function App() {
     window.open(result.downloadUrl, "_blank");
   }
 
+  async function createShareLink(file) {
+    const choice = window.prompt("Link lifetime: enter hours (default 24)", "24");
+    if (choice === null) return;
+    const hours = Number(choice || 24);
+    if (!Number.isFinite(hours) || hours <= 0) {
+      setMessage("Enter a positive number of hours.");
+      return;
+    }
+    try {
+      const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+      const result = await api.authRequest(`/files/${file.id}/share`, token, {
+        method: "POST",
+        body: JSON.stringify({ expiresAt }),
+      });
+      const link = `${window.location.origin}/share/${result.token}`;
+      await navigator.clipboard.writeText(link);
+      setMessage(`Share link copied. It expires ${formatDate(result.expires_at)}.`);
+      setSelectedFile({ ...file, shareToken: result.token });
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
+
+  async function revokeShareLink() {
+    if (!selectedFile?.shareToken) return;
+    try {
+      await api.authRequest(`/share/${selectedFile.shareToken}`, token, { method: "DELETE" });
+      setSelectedFile(null);
+      setMessage("Share link revoked.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
+
   async function deleteFile(file) {
     if (!window.confirm(`Delete ${file.original_name}?`)) return;
     try {
@@ -275,6 +321,20 @@ function App() {
     }
   }
 
+  if (shareToken) {
+    if (shareLoading) return <main className="login"><p className="eyebrow">SHARED FILE</p><h1>Loading file...</h1></main>;
+    if (shareError) return <main className="login"><p className="eyebrow">SHARED FILE</p><h1>Link unavailable</h1><p className="error">{shareError}</p></main>;
+    return (
+      <main className="login shared-file">
+        <p className="eyebrow">SHARED FILE · READ ONLY</p>
+        <h1>{sharedFile.file.originalName}</h1>
+        <p className="muted">This link grants download access only. It does not grant access to the owner's file space.</p>
+        <a className="button-link" href={sharedFile.downloadUrl}>Download file</a>
+        <p className="muted">The download address is temporary and may expire separately from this share link.</p>
+      </main>
+    );
+  }
+
   if (!token) {
     return (
       <main className="login">
@@ -305,6 +365,7 @@ function App() {
         </div>
         <div className="file-actions">
           <button onClick={() => downloadFile(file.id)}>Download</button>
+          <button onClick={() => createShareLink(file)}>Share</button>
           <button onClick={() => openProperties(file)}>Properties</button>
           <button className="delete" onClick={() => deleteFile(file)}>Delete</button>
         </div>
@@ -394,6 +455,7 @@ function App() {
             <div className="modal-header"><div><p className="eyebrow">FILE PROPERTIES</p><h2 id="properties-title">{selectedFile.original_name}</h2></div><button className="quiet" onClick={() => setSelectedFile(null)}>Close</button></div>
             <dl className="metadata"><div><dt>Location</dt><dd>{folderPath(selectedFile.folder_id) || "Root space"}</dd></div><div><dt>Created</dt><dd>{formatDate(selectedFile.created_at)}</dd></div><div><dt>Size</dt><dd>{formatSize(selectedFile.size)}</dd></div><div><dt>Type</dt><dd>{selectedFile.mime_type}</dd></div></dl>
             <form className="rename-form" onSubmit={renameFile}><label htmlFor="rename-file">Rename file</label><input id="rename-file" value={renameName} onChange={(event) => setRenameName(event.target.value)} required /><button type="submit">Save name</button></form>
+            <div className="share-panel"><strong>Share this file</strong><p className="muted">Create a temporary, read-only link. Anyone with it can download this file until it expires.</p><button type="button" onClick={() => createShareLink(selectedFile)}>Create and copy link</button>{selectedFile.shareToken && <button className="delete" type="button" onClick={revokeShareLink}>Revoke this link</button>}</div>
           </section>
         </div>
       )}

@@ -1,163 +1,55 @@
 # Self-Hosted File Management System
 
-A scalable, self-hosted cloud file management platform designed for secure storage, organization, sharing, and retrieval of large files. The system separates file metadata from object storage and uses direct S3 transfers to minimize backend bandwidth and improve scalability.
-
----
+A self-hosted cloud file management platform designed for secure storage, organization, sharing, and retrieval of large files. The system separates file metadata from object storage and uses direct S3 transfers to minimize backend bandwidth and improve scalability.
 
 Traditional file management applications often route uploaded files through the application server before storing them in object storage. This introduces unnecessary network and memory overhead, makes large-file transfers expensive, and can turn the backend into a bottleneck as concurrent users increase.
 
 This project addresses these limitations by separating:
 
-* **Metadata management** — users, folders, permissions, file information
-* **Object storage** — actual file contents
-* **File transfer** — direct browser-to-object-storage communication
+* **Metadata management** -> users, folders, permissions, file information
+* **Object storage** -> actual file contents
+* **File transfer** -> direct browser-to-object-storage communication
 
-The result is a lightweight backend that focuses on authentication, authorization, metadata, and access control while large file transfers are handled directly by object storage.
-
----
+It is built with React, Express, PostgreSQL, and Amazon S3. PostgreSQL stores users and file metadata; S3 stores the file contents. The browser uploads and downloads file bytes directly through short-lived S3 presigned URLs, so the Node.js API does not proxy the file contents.
 
 ## Key Features
 
-* JWT-based authentication
-* Role-based access control (RBAC)
-* Hierarchical folder management
-* Secure presigned file uploads
-* Presigned downloads with temporary access
-* Multipart uploads for large files
-* File sharing with controlled access
-* File deletion and management
-* File metadata and search
-* Private object storage
-* File integrity verification using checksums
-* Storage quota tracking
-* Database indexing for efficient metadata queries
-
-
+* **Authentication & Authorization:** Secure email/password login using JWT tokens (`localStorage` persistence), parameterized PostgreSQL queries, and strict resource ownership checks.
+* **File & Folder Management:** Full file system capabilities including nested folder creation, directory browsing, filename/foldername search, renaming, and deletion.
+* **S3 File Transfers & Storage Tracking:** Direct file uploads via S3 `PutObject`, secure downloads using temporary S3 `GetObject` presigned URLs, and real-time per-user storage quota enforcement (`storage_used` vs. `storage_limit`).
+* **Expiring Share Links:** API endpoints to generate, manage, and revoke temporary file-sharing links with optional expiration limits.
+* **React Frontend:** Modern web dashboard supporting core user workflows including authentication, folder navigation, file uploads/downloads, search, and storage management.
 ---
 
 ## Architecture
 <img width="556" height="1128" alt="image (2)" src="https://github.com/user-attachments/assets/7c635888-08d1-4a23-b3a6-7a99a1d44ee0" />
 
-### Design Principle
 
-The application does **not** send large files through the Node.js server.
+## Prototype Images 
 
-Instead:
+<img width="1917" height="911" alt="image" src="https://github.com/user-attachments/assets/68cad9c7-87ff-48d7-9c6e-c52f94fcc0ec" />
 
-```text
-Upload:
+<br/>
+<br/>
+<img width="1897" height="907" alt="image" src="https://github.com/user-attachments/assets/fc1498b2-8701-430b-bb2d-4abbe6ccec46" />
 
-Browser
-   │
-   │ Request upload URL
-   ▼
-Node.js
-   │
-   │ Presigned URL
-   ▼
-Browser
-   │
-   │ Direct upload
-   ▼
-AWS S3
-```
+<br/>
+<br/>
+<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/7282401b-43a6-4498-88cb-a118557ef522" />
+<br/>
+<br/>
+<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/d2391884-62b8-4cc6-a44c-5001e99228f3" />
+<br/>
+<br/>
+<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/cdf0499d-38e7-4aad-9fda-2c8082be53e2" />
+<br/>
+<br/>
+<img width="1497" height="897" alt="image" src="https://github.com/user-attachments/assets/79baf2d1-1b86-4273-95a2-6283261e6e7e" />
+<br/>
+<br/>
+<img width="1566" height="912" alt="image" src="https://github.com/user-attachments/assets/7363b095-3250-43e8-9be7-9ed9588ce8e0" />
+<br/>
 
-Similarly, downloads use temporary presigned URLs:
-
-```text
-Browser
-   │
-   │ Request file
-   ▼
-Node.js
-   │
-   │ Verify ownership / permissions
-   │ Generate presigned URL
-   ▼
-Browser
-   │
-   │ Direct download
-   ▼
-AWS S3
-```
-
-This keeps the backend focused on **control-plane operations** rather than acting as a file-transfer proxy.
-
----
-
-## Data Model
-
-The system maintains file metadata separately from the actual file contents.
-
-### Users
-
-```text
-users
-├── id
-├── email
-├── password_hash
-├── storage_used
-├── storage_limit
-└── created_at
-```
-
-### Folders
-
-```text
-folders
-├── id
-├── user_id
-├── parent_folder_id
-├── name
-└── created_at
-```
-
-`parent_folder_id` enables recursive folder hierarchies.
-
-### Files
-
-```text
-files
-├── id
-├── user_id
-├── folder_id
-├── original_name
-├── s3_key
-├── mime_type
-├── size
-├── checksum
-├── created_at
-└── updated_at
-```
-
-PostgreSQL stores the metadata while AWS S3 stores the actual file objects.
-
----
-
-## Large File Handling
-
-Large files are handled using multipart uploads.
-
-A large file is divided into independently uploaded parts:
-
-```text
-1 GB File
-      │
-      ├── Part 1
-      ├── Part 2
-      ├── Part 3
-      ├── ...
-      └── Part N
-             │
-             ▼
-          AWS S3
-```
-
-Parts can be uploaded concurrently and failed parts can be retried independently instead of restarting the entire upload.
-
-This improves reliability and transfer performance for large files.
-
----
 
 ## Security
 
@@ -192,31 +84,6 @@ Checksums are maintained for uploaded files and can be compared against download
 
 ---
 
-## Performance Benchmarks
-
-The system is designed and benchmarked around realistic concurrent file-management workloads.
-
-### API Performance
-
-| Metric            |               Benchmark |
-| ----------------- | ----------------------: |
-| Throughput        | **~3,000 requests/sec** |
-| p95 API latency   |              **~35 ms** |
-| Concurrent users  |                **250+** |
-| Operations tested |               **100K+** |
-| Error rate        |                 **<1%** |
-
-### File Transfer Performance
-
-| Metric                   |     Benchmark |
-| ------------------------ | ------------: |
-| File-transfer throughput | **~100 MB/s** |
-| Concurrent users         |      **250+** |
-| Operations tested        |     **100K+** |
-
-Direct browser-to-S3 transfers prevent large file payloads from passing through the Node.js application server, reducing backend bandwidth consumption and allowing the API layer to concentrate on metadata and authorization workloads.
-
----
 
 ## API Overview
 
@@ -259,7 +126,7 @@ DELETE /api/share/:token
 
 ---
 
-## Project Structure
+## Project 
 
 ```text
 file-management-system/
@@ -340,23 +207,6 @@ A private alternative to cloud drive applications for storing:
 * Backups
 * Personal projects
 
-### Team File Management
-
-Organizations can use the system for:
-
-* Shared project folders
-* Role-based access
-* Internal document storage
-* Temporary file sharing
-
-### Educational Platforms
-
-Useful for:
-
-* Student assignment submissions
-* Course material storage
-* Project repositories
-* Faculty resource sharing
 
 ### Enterprise Document Management
 
@@ -383,7 +233,7 @@ The same architecture can serve as the storage layer for applications requiring:
 
 ## Scalability Strategy
 
-The system is designed so that file-transfer traffic and API traffic can scale independently.
+The system can be designed so that file-transfer traffic and API traffic can scale independently.
 
 ```text
 API workload
@@ -421,29 +271,6 @@ Future scaling improvements include:
 
 ---
 
-## Performance Testing
-
-Load testing should evaluate:
-
-```text
-Concurrent users
-       ↓
-API throughput
-       ↓
-p95 / p99 latency
-       ↓
-Error rate
-       ↓
-CPU / memory
-       ↓
-Database utilization
-       ↓
-S3 transfer throughput
-```
-
-The primary objective is to identify the system's saturation point while maintaining acceptable latency and reliability.
-
----
 
 ## Tech Stack
 
@@ -474,11 +301,3 @@ Testing       → Load testing / benchmarking
 * Horizontal API scaling
 
 ---
-
-## Core Engineering Idea
-
-The central design principle of the system is simple:
-
-> **PostgreSQL manages what the file is, the Node.js backend decides who can access it, and S3 stores the actual bytes.**
-
-This separation allows the application to provide secure file management without turning the application server into a bottleneck for large file transfers.
