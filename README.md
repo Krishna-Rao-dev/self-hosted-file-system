@@ -25,29 +25,11 @@ It is built with React, Express, PostgreSQL, and Amazon S3. PostgreSQL stores us
 <img width="556" height="1128" alt="image (2)" src="https://github.com/user-attachments/assets/7c635888-08d1-4a23-b3a6-7a99a1d44ee0" />
 
 
-## Prototype Images 
+## Prototype Video
 
-<img width="1917" height="911" alt="image" src="https://github.com/user-attachments/assets/68cad9c7-87ff-48d7-9c6e-c52f94fcc0ec" />
 
-<br/>
-<br/>
-<img width="1897" height="907" alt="image" src="https://github.com/user-attachments/assets/fc1498b2-8701-430b-bb2d-4abbe6ccec46" />
+https://github.com/user-attachments/assets/9117ac22-e754-4e1b-abee-62b6ffb21f11
 
-<br/>
-<br/>
-<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/7282401b-43a6-4498-88cb-a118557ef522" />
-<br/>
-<br/>
-<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/d2391884-62b8-4cc6-a44c-5001e99228f3" />
-<br/>
-<br/>
-<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/cdf0499d-38e7-4aad-9fda-2c8082be53e2" />
-<br/>
-<br/>
-<img width="1497" height="897" alt="image" src="https://github.com/user-attachments/assets/79baf2d1-1b86-4273-95a2-6283261e6e7e" />
-<br/>
-<br/>
-<img width="1566" height="912" alt="image" src="https://github.com/user-attachments/assets/7363b095-3250-43e8-9be7-9ed9588ce8e0" />
 <br/>
 
 
