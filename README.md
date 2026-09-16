@@ -189,18 +189,6 @@ The application can be deployed on AWS using:
                  PostgreSQL    File Storage
 ```
 
-### Infrastructure
-
-* **Amazon S3** — private file/object storage
-* **Amazon EC2** — Node.js backend
-* **Amazon RDS** — PostgreSQL metadata database
-* **CloudFront** — content delivery
-* **Route 53** — DNS
-* **AWS Certificate Manager** — HTTPS certificates
-* **CloudWatch** — monitoring and logs
-
----
-
 ## Applications
 
 The architecture can be adapted for several real-world use cases:
