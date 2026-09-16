@@ -114,32 +114,55 @@ DELETE /api/share/:token       # authenticated file owner
 ## Project 
 
 ```text
-file-management-system/
+self-hosted-file-system/
 │
 ├── backend/
+│   ├── migrations/
+│   │
 │   ├── src/
 │   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   └── s3.js
+│   │   │
 │   │   ├── controllers/
 │   │   ├── middleware/
 │   │   ├── routes/
 │   │   ├── services/
 │   │   ├── utils/
+│   │   │
 │   │   ├── app.js
 │   │   └── server.js
 │   │
-│   ├── migrations/
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── eslint.config.js
 │   ├── package.json
-│   └── .env
+│   └── package-lock.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.jsx
-│   └── package.json
+│   │   ├── assets/
+│   │   │   ├── hero.png
+│   │   │   ├── react.svg
+│   │   │   └── vite.svg
+│   │   │
+│   │   ├── api.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   └── vite.config.js
 │
-├── docker-compose.yml
+├── package-lock.json
 └── README.md
 ```
 
@@ -165,18 +188,6 @@ The application can be deployed on AWS using:
                     RDS           S3
                  PostgreSQL    File Storage
 ```
-
-### Infrastructure
-
-* **Amazon S3** — private file/object storage
-* **Amazon EC2** — Node.js backend
-* **Amazon RDS** — PostgreSQL metadata database
-* **CloudFront** — content delivery
-* **Route 53** — DNS
-* **AWS Certificate Manager** — HTTPS certificates
-* **CloudWatch** — monitoring and logs
-
----
 
 ## Applications
 
