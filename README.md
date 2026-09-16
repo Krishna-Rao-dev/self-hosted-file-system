@@ -6,7 +6,7 @@ Traditional file management applications often route uploaded files through the 
 
 This project addresses these limitations by separating:
 
-* **Metadata management** -> users, folders, permissions, file information
+* **Metadata management** -> users, folders, file information
 * **Object storage** -> actual file contents
 * **File transfer** -> direct browser-to-object-storage communication
 
@@ -16,7 +16,7 @@ It is built with React, Express, PostgreSQL, and Amazon S3. PostgreSQL stores us
 
 * **Authentication & Authorization:** Secure email/password login using JWT tokens (`localStorage` persistence), parameterized PostgreSQL queries, and strict resource ownership checks.
 * **File & Folder Management:** Full file system capabilities including nested folder creation, directory browsing, filename/foldername search, renaming, and deletion.
-* **S3 File Transfers & Storage Tracking:** Direct file uploads via S3 `PutObject`, secure downloads using temporary S3 `GetObject` presigned URLs, SHA-256 integrity verification, and real-time per-user storage quota enforcement (`storage_used` vs. `storage_limit`).
+* **S3 File Transfers & Storage Tracking:** Direct file uploads via S3 `PutObject`, secure downloads using temporary S3 `GetObject` presigned URLs, SHA-256 integrity verification.
 * **Expiring Share Links:** API endpoints to generate, manage, and revoke temporary file-sharing links with optional expiration limits.
 * **React Frontend:** Modern web dashboard supporting core user workflows including authentication, folder navigation, file uploads/downloads, search, and storage management.
 ---
@@ -284,7 +284,6 @@ Object Store  → AWS S3
 Authentication→ JWT
 Frontend      → React
 Deployment    → AWS EC2, RDS, S3, CloudFront
-Testing       → Load testing / benchmarking
 ```
 
 ---
