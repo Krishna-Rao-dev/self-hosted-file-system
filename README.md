@@ -114,32 +114,55 @@ DELETE /api/share/:token       # authenticated file owner
 ## Project 
 
 ```text
-file-management-system/
+self-hosted-file-system/
 │
 ├── backend/
+│   ├── migrations/
+│   │
 │   ├── src/
 │   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   └── s3.js
+│   │   │
 │   │   ├── controllers/
 │   │   ├── middleware/
 │   │   ├── routes/
 │   │   ├── services/
 │   │   ├── utils/
+│   │   │
 │   │   ├── app.js
 │   │   └── server.js
 │   │
-│   ├── migrations/
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── eslint.config.js
 │   ├── package.json
-│   └── .env
+│   └── package-lock.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.jsx
-│   └── package.json
+│   │   ├── assets/
+│   │   │   ├── hero.png
+│   │   │   ├── react.svg
+│   │   │   └── vite.svg
+│   │   │
+│   │   ├── api.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   └── vite.config.js
 │
-├── docker-compose.yml
+├── package-lock.json
 └── README.md
 ```
 
